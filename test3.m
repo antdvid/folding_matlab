@@ -11,4 +11,16 @@ faces = {{1, 2}, {2, 3},{3, 4}, {4, 5}, {5, 6}, {6, 7}, {7, 8}, {8,9}, ...
 creases = [ones(1, 16) * 17; 1:16]'; %points index for creases
 rhoT = [-pi, 3*pi/4, -pi, 3*pi/4, -pi, 3*pi/4, -pi, 3*pi/4, -pi, ...
     3*pi/4, -pi, 3*pi/4, -pi, 3*pi/4, -pi, 3*pi/4];
-folding(points, edges, creases, faces, rhoT, 400, 'test3.gif')
+xlim([-2 2])
+ylim([-2 2])
+zlim([-2 2])
+view([74 12])
+rho_series = folding_test(points, edges, creases, faces, rhoT, 300, 'test3.gif');
+
+figure(2)
+plot(rho_series(rho_series(:,1) ~= 0, :), '-')
+axis tight
+ax = gca;
+set(gca, 'Ytick', [-3/2*pi -pi -pi/2 0 pi/2 pi 3/2*pi]);
+set(gca, 'YTickLabel', {'-3/2\pi','-\pi','-\pi/2','0','\pi/2','\pi','3/2\pi'});
+ylim([-pi pi]*1.2)

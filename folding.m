@@ -9,14 +9,15 @@ rho_series = zeros(maxIter, N);
 for k = 1 : maxIter
     creases_vect = points(creases(:, 2), :) - points(creases(:,1), :);
     drho0 = (rhoT - rho);
-    drho0 = drho0/norm(drho0) * w;
+    drho0 = drho0/norm(drho0) * 0.001;
     X = zeros(3, 3, N);
     dX = X;
     for i = 1 : N
         dX(:,:, i) = computeDX(creases_vect(i,:), drho0(i));
         X(:,:, i)  = computeX(creases_vect(i,:), drho0(i));
     end
-
+    drho0 = drho0 * 100;
+    
     F = eye(3);
     for i = 1 : N
         F = F * X(:,:, i);
@@ -45,20 +46,8 @@ for k = 1 : maxIter
     xlim([-2 2])
     ylim([-2 2])
     zlim([-2 2])
-    cla
-    set(gca,'color','none')
-    axis off
+    
     draw(points, edges, creases);
-    %save movie
-    drawnow;
-    frame = getframe(1);
-    im = frame2im(frame);
-    [imind,cm] = rgb2ind(im,256);
-    if k==1
-        imwrite(imind,cm,outfile,'gif','DelayTime',0,'loopcount',inf);
-    else
-        imwrite(imind,cm,outfile,'gif','DelayTime',0,'writemode','append');
-    end
     
     if (norm(drho') < 1e-5)
         fprintf('convergence reached, d_rho = %f\n', norm(drho));

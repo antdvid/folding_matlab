@@ -1,5 +1,5 @@
 %folding method
-function folding_opt(points, edges, creases, faces, rhoT, maxIter, outfile)
+function rho_series = folding_opt(points, edges, creases, faces, rhoT, maxIter, outfile)
 %number of crease lines
 N = size(creases, 1);
 
@@ -13,19 +13,25 @@ rho_delta = zeros(1,N);
 points0 = points;
 creases_vect = points(creases(:, 2), :) - points(creases(:,1), :);
 for k = 1 : maxIter
-    rho_rand = (rand(1,N) * 2 -1) * pi * 0.1;
-    dir = (1 -w ) * rho_rand + w * rhoT;
+    rho_rand = rand(1,N) * pi;
+    rho_rand(rhoT < 0) = rho_rand(rhoT < 0) * -1;
+    dir = (1 - w)*rho_rand + w * rhoT;
+    dir = dir / norm(dir);
     rho_tau = rho_delta + D * dir;
     rho = findFoldable(rho_tau, points, creases);
-    computeF(rho, points, creases)
-    if (isValid(rho) && dist(rhoT, rho) < dist(rhoT, rho_delta))
+    display('rhot_tau')
+    norm(rhoT - rho_tau)
+    display('rho')
+    norm(rhoT - rho)
+    if (isValid(rho) && norm(rhoT - rho) < norm(rhoT - rho_delta))
         rho_delta = rho;
         w = w + w1;
+        rho_series(k,:) = rho';
+        rho_delta
     else
         w = w - w2;
     end
-    rho
-    rho_series(k,:) = rho';
+    w = max(min([w 1]), 0);
     %points = movePoints(points0, creases_vect, faces, rho);
     %cla
     %draw(points, edges, creases)
@@ -33,8 +39,6 @@ for k = 1 : maxIter
 end
 points = movePoints(points0, creases_vect, faces, rho);
 draw(points, edges, creases)
-figure(2)
-plot(rho_series)
 end
 
 function res = isValid(rho, points, creases)

@@ -1,23 +1,24 @@
 %folding method
-function folding_test(points, edges, creases, faces, rhoT, maxIter, outfile)
+function rho_series = folding_test(points, edges, creases, faces, rhoT, maxIter, outfile)
 %number of crease lines
 N = size(creases, 1);
 rho = zeros(1, N);
 rho_series = zeros(maxIter, N);
-creases_vect = points(creases(:, 2), :) - points(creases(:,1), :);
+creases_vect0 = points(creases(:, 2), :) - points(creases(:,1), :);
 points0 = points;
 rho_series(1, :) = rho;
 
-for k = 2 : maxIter
+for k = 1 : maxIter
+    creases_vect = points(creases(:, 2), :) - points(creases(:,1), :);
     drho0 = rhoT - rho;
-    drho0 = (0.8 * drho0/norm(drho0) + 0.1 * (rand(1,N)*2 -1)) * 0.02;
+    drho0 = drho0/norm(drho0) * 0.001;
     X = zeros(3, 3, N);
     dX = X;
     for i = 1 : N
-        dX(:,:, i) = computeDX(creases_vect(i,:), rho(i));
-        X(:,:, i)  = computeX(creases_vect(i,:), rho(i));
+        dX(:,:, i) = computeDX(creases_vect(i,:), drho0(i));
+        X(:,:, i)  = computeX(creases_vect(i,:), drho0(i));
     end
-
+    drho0 = drho0 * 50;
     F = eye(3);
     for i = 1 : N
         F = F * X(:,:, i);
@@ -41,18 +42,16 @@ for k = 2 : maxIter
     end
     drho = (eye(N) - C_p * C) * drho0';
     rho = rho + drho';
-    rho
-    points = movePoints(points0, creases_vect, faces, rhoT);
+    points = movePoints(points0, creases_vect0, faces, rho);
     rho_series(k,:) = rho;
     cla
     set(gca,'color','none')
     axis off
     draw(points, edges, creases);
-    pause(0.1)
-    if (norm(drho') < 1e-5)
-        fprintf('convergence reached, d_rho = %f\n', norm(drho));
+    save_movie(k, outfile)
+    pause(0.01)
+    if (norm(drho0') < 1e-5)
+        fprintf('convergence reached, d_rho = %f\n', norm(drho0));
         break;
     end
 end
-figure(2)
-plot(rho_series, 'o-')
