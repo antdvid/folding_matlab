@@ -15,7 +15,7 @@ xlim([-2 2])
 ylim([-2 2])
 zlim([-2 2])
 view([74 12])
-rho_series = folding_test(points, edges, creases, faces, rhoT, 300, 'test3.gif');
+rho_series = folding_opt(points, edges, creases, faces, rhoT, 800, 'test3.gif');
 
 figure(2)
 plot(rho_series(rho_series(:,1) ~= 0, :), '-')

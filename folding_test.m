@@ -45,7 +45,7 @@ for k = 1 : maxIter
     points = movePoints(points0, creases_vect0, faces, rho);
     rho_series(k,:) = rho;
     cla
-    set(gca,'color','none')
+    set(gcf,'color','white')
     axis off
     draw(points, edges, creases);
     save_movie(k, outfile)
